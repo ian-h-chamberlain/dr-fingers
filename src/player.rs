@@ -20,7 +20,7 @@ impl Plugin for PlayerPlugin {
         .add_system_set(
             SystemSet::on_update(GameState::Playing)
                 .with_system(move_player)
-                .with_system(animate_sprite),
+                .with_system(animate_player),
         );
     }
 }
@@ -44,14 +44,36 @@ fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
 #[derive(Component)]
 struct AnimationTimer(Timer);
 
-fn animate_sprite(
+fn animate_player(
     time: Res<Time>,
-    mut query: Query<(&mut AnimationTimer, &mut TextureAtlasSprite)>,
+    actions: Res<Actions>,
+    atlases: Res<Assets<TextureAtlas>>,
+    mut query: Query<
+        (
+            &mut AnimationTimer,
+            &mut TextureAtlasSprite,
+            &Handle<TextureAtlas>,
+        ),
+        With<Player>,
+    >,
 ) {
-    for (mut timer, mut sprite) in query.iter_mut() {
+    for (mut timer, mut sprite, atlas_handle) in query.iter_mut() {
         timer.0.tick(time.delta());
         if timer.0.finished() {
-            sprite.index = (sprite.index + 1) % 8;
+            if let Some(movement) = actions.player_movement {
+                let atlas = atlases
+                    .get(atlas_handle)
+                    .expect("atlas for texture not found");
+
+                if movement.x > 0.0 {
+                    sprite.index = (sprite.index + 1) % atlas.textures.len();
+                } else if movement.x < 0.0 {
+                    sprite.index = sprite
+                        .index
+                        .checked_sub(1)
+                        .unwrap_or(atlas.textures.len() - 1);
+                }
+            }
         }
     }
 }
