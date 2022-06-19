@@ -3,7 +3,8 @@
 
 use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
 use bevy::DefaultPlugins;
-use bevy_game::GamePlugin;
+
+use dr_fingers::GamePlugin;
 
 fn main() {
     App::new()
