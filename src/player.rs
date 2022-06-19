@@ -1,5 +1,5 @@
 use crate::actions::Actions;
-use crate::loading::TextureAssets;
+use crate::loading::SpriteAssets;
 use crate::GameState;
 use bevy::prelude::*;
 
@@ -17,7 +17,11 @@ impl Plugin for PlayerPlugin {
                 .with_system(spawn_player)
                 .with_system(spawn_camera),
         )
-        .add_system_set(SystemSet::on_update(GameState::Playing).with_system(move_player));
+        .add_system_set(
+            SystemSet::on_update(GameState::Playing)
+                .with_system(move_player)
+                .with_system(animate_sprite),
+        );
     }
 }
 
@@ -25,14 +29,31 @@ fn spawn_camera(mut commands: Commands) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
 }
 
-fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
+fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
     commands
-        .spawn_bundle(SpriteBundle {
-            texture: textures.texture_bevy.clone(),
-            transform: Transform::from_translation(Vec3::new(0., 0., 1.)),
+        .spawn_bundle(SpriteSheetBundle {
+            sprite: TextureAtlasSprite::new(0),
+            texture_atlas: sprites.dogken.clone(),
+            transform: Transform::from_xyz(0.0, 0.0, 1.0),
             ..Default::default()
         })
-        .insert(Player);
+        .insert(Player)
+        .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
+}
+
+#[derive(Component)]
+struct AnimationTimer(Timer);
+
+fn animate_sprite(
+    time: Res<Time>,
+    mut query: Query<(&mut AnimationTimer, &mut TextureAtlasSprite)>,
+) {
+    for (mut timer, mut sprite) in query.iter_mut() {
+        timer.0.tick(time.delta());
+        if timer.0.finished() {
+            sprite.index = (sprite.index + 1) % 8;
+        }
+    }
 }
 
 fn move_player(

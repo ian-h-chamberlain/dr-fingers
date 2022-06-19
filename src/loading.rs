@@ -13,7 +13,7 @@ impl Plugin for LoadingPlugin {
         AssetLoader::new(GameState::Loading)
             .with_collection::<FontAssets>()
             .with_collection::<AudioAssets>()
-            .with_collection::<TextureAssets>()
+            .with_collection::<SpriteAssets>()
             .continue_to_state(GameState::Menu)
             .build(app);
     }
@@ -35,7 +35,8 @@ pub struct AudioAssets {
 }
 
 #[derive(AssetCollection)]
-pub struct TextureAssets {
-    #[asset(path = "textures/bevy.png")]
-    pub texture_bevy: Handle<Image>,
+pub struct SpriteAssets {
+    #[asset(path = "sprites/dogken.png")]
+    #[asset(texture_atlas(tile_size_x = 46.0, tile_size_y = 34.0, columns = 1, rows = 10))]
+    pub dogken: Handle<TextureAtlas>,
 }
