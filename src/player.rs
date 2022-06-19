@@ -86,12 +86,14 @@ fn move_player(
     if actions.player_movement.is_none() {
         return;
     }
+
     let speed = 150.;
     let movement = Vec3::new(
         actions.player_movement.unwrap().x * speed * time.delta_seconds(),
         actions.player_movement.unwrap().y * speed * time.delta_seconds(),
         0.,
     );
+
     for mut player_transform in player_query.iter_mut() {
         player_transform.translation += movement;
     }
