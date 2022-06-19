@@ -1,0 +1,24 @@
+{
+  "template": "https://github.com/ian-h-chamberlain/bevy_cookiecutter",
+  "commit": "e4e21b58faed83ddf36f98ed6e6778582d335314",
+  "context": {
+    "cookiecutter": {
+      "project_name": "Dr. Fingers",
+      "author_name": "Ian Chamberlain",
+      "author_email": "ian.h.chamberlain@gmail.com",
+      "crate_name": "dr-fingers",
+      "osx_short_name": "drfingers",
+      "osx_bundle_id": "com.example.drfingers",
+      "_copy_without_render": [
+        "{{cookiecutter.crate_name}}/assets/*",
+        "{{cookiecutter.crate_name}}/.github/workflows/ci.yml",
+        "{{cookiecutter.crate_name}}/.github/workflows/deploy-page.yml"
+      ],
+      "_extensions": [
+        "cookiecutter.extensions.SlugifyExtension"
+      ],
+      "_template": "https://github.com/ian-h-chamberlain/bevy_cookiecutter"
+    }
+  },
+  "directory": null
+}
