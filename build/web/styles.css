@@ -10,6 +10,10 @@ body {
     ) repeat;
     background-size: 20px 20px;
     margin: 0;
+    height: 75vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 canvas {
     background-color: white;
