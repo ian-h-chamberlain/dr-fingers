@@ -16,6 +16,7 @@ use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use heron::{Gravity, PhysicsPlugin};
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -40,7 +41,9 @@ impl Plugin for GamePlugin {
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(LevelPlugin)
-            .add_plugin(PlayerPlugin);
+            .add_plugin(PlayerPlugin)
+            .insert_resource(Gravity::from(Vec2::new(0.0, -200.0)))
+            .add_plugin(PhysicsPlugin::default());
 
         #[cfg(debug_assertions)]
         {
