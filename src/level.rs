@@ -34,6 +34,7 @@ enum Side {
     Bot,
     BotRight,
     // TODO maybe standalone blocks?
+    // and probably will want some TopBot kind of tiles
 }
 
 impl Side {
@@ -62,20 +63,30 @@ fn build_level(mut level: ResMut<Level>) {
     // TODO maybe RON or even an ascii map or something a little nicer than this
     level.tiles = vec![
         vec![Empty; 16],
-        vec![Empty, Empty, Floor(TopLeft), Floor(Top), Floor(TopRight), Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty],
-        vec![Empty, Empty, Floor(BotLeft), Floor(Bot), Floor(BotRight), Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty],
+        vec![Empty, Floor(TopLeft), Floor(Top), Floor(TopRight), Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty],
+        vec![Empty, Floor(BotLeft), Floor(Bot), Floor(BotRight), Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty],
         vec![Empty; 16],
     ];
 }
 
-fn spawn_level(mut commands: Commands, level: Res<Level>, tiles: Res<TileAssets>) {
-    for (j, row) in level.tiles.iter().rev().enumerate() {
+fn spawn_level(
+    mut commands: Commands,
+    level: Res<Level>,
+    tiles: Res<TileAssets>,
+    windows: Res<Windows>,
+) {
+    let window = windows.primary();
+    let tile_start = Vec3::new(-window.width() / 2.0, window.height() / 2.0, 10.0);
+
+    for (j, row) in level.tiles.iter().enumerate() {
         for (i, tile) in row.iter().enumerate() {
             if let Tile::Floor(side) = tile {
+                let position = tile_start + Vec3::new(i as f32 * 48.0, j as f32 * -48.0, 0.0);
+
                 commands.spawn_bundle(SpriteSheetBundle {
                     sprite: TextureAtlasSprite::new(side.index()),
                     texture_atlas: tiles.tiles.clone(),
-                    transform: Transform::from_xyz(i as f32 * 48.0, j as f32 * 48.0, 10.0),
+                    transform: Transform::from_translation(position),
                     ..Default::default()
                 });
             }
