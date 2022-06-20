@@ -42,7 +42,7 @@ impl Plugin for GamePlugin {
             .add_plugin(InternalAudioPlugin)
             .add_plugin(LevelPlugin)
             .add_plugin(PlayerPlugin)
-            .insert_resource(Gravity::from(Vec2::new(0.0, -200.0)))
+            .insert_resource(Gravity::from(Vec2::new(0.0, -250.0)))
             .add_plugin(PhysicsPlugin::default());
 
         #[cfg(debug_assertions)]

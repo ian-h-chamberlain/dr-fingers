@@ -20,6 +20,7 @@ impl Plugin for InternalAudioPlugin {
 
 fn start_audio(audio_assets: Res<AudioAssets>, audio: Res<Audio>) {
     audio.set_volume(0.3);
+    // TODO: don't use this sound for movement, lol
     audio.play_looped(audio_assets.flying.clone());
     audio.pause();
 }

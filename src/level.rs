@@ -28,25 +28,36 @@ impl Default for Tile {
 
 #[derive(Debug, Copy, Clone)]
 pub enum Side {
+    // Height=2 blocks
     TopLeft,
     Top,
     TopRight,
     BotLeft,
     Bot,
     BotRight,
-    // TODO maybe standalone blocks?
-    // and probably will want some TopBot kind of tiles
+
+    // Single-layer blocks
+    Left,
+    Middle,
+    Right,
+
+    // Single vent block
+    Standalone,
 }
 
 impl Side {
     fn index(self) -> usize {
         match self {
-            Self::TopLeft => 16,
-            Self::Top => 17,
-            Self::TopRight => 18,
-            Self::BotLeft => 32,
-            Self::Bot => 33,
-            Self::BotRight => 34,
+            Self::TopLeft => 0,
+            Self::Top => 1,
+            Self::TopRight => 2,
+            Self::BotLeft => 6,
+            Self::Bot => 7,
+            Self::BotRight => 8,
+            Self::Left => 3,
+            Self::Middle => 4,
+            Self::Right => 5,
+            Self::Standalone => 9,
         }
     }
 }
@@ -67,14 +78,14 @@ fn build_level(mut level: ResMut<Level>) {
         vec![Empty; 16],
         vec![Empty; 16],
         vec![Empty; 16],
-        vec![Empty; 16],
-        vec![Empty; 16],
+        vec![Empty, Empty, Empty, Empty, Floor(Standalone), ],
         vec![Empty; 16],
         vec![Empty; 16],
         vec![Empty; 16],
         vec![Empty, Floor(TopLeft), Floor(Top), Floor(Top), Floor(Top), Floor(Top), Floor(Top), Floor(Top), Floor(Top), Floor(TopRight), Empty, Empty, Empty, Empty, Empty, Empty, Empty],
         vec![Empty, Floor(BotLeft), Floor(Bot), Floor(Bot), Floor(Bot), Floor(Bot), Floor(Bot), Floor(Bot), Floor(Bot), Floor(BotRight),  Empty, Empty, Empty, Empty, Empty, Empty, Empty],
         vec![Empty; 16],
+        vec![Empty, Empty, Floor(Left), Floor(Middle), Floor(Middle), Floor(Middle), Floor(Right)],
     ];
 }
 
@@ -101,11 +112,6 @@ fn spawn_level(
                     })
                     .insert(tile)
                     .insert(RigidBody::Static)
-                    .insert(PhysicMaterial {
-                        friction: 1.5,
-                        density: 1000.0,
-                        ..Default::default()
-                    })
                     .insert(CollisionShape::Cuboid {
                         half_extends: Vec3::new(24.0, 24.0, 0.0),
                         border_radius: None,

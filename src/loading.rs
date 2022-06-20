@@ -46,6 +46,6 @@ pub struct SpriteAssets {
 #[derive(AssetCollection)]
 pub struct TileAssets {
     #[asset(path = "textures/prison_tiles.png")]
-    #[asset(texture_atlas(tile_size_x = 48.0, tile_size_y = 48.0, columns = 16, rows = 16))]
+    #[asset(texture_atlas(tile_size_x = 48.0, tile_size_y = 48.0, columns = 6, rows = 2))]
     pub tiles: Handle<TextureAtlas>,
 }

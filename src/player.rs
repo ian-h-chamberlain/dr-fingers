@@ -112,8 +112,8 @@ fn animate_player(
 }
 
 const MOVE_ACCEL: f32 = 30.0;
+const MAX_SPEED_X: f32 = 175.0;
 const JUMP_VELOCITY: f32 = 200.0;
-const MAX_SPEED: f32 = 175.0;
 
 fn move_player(
     actions: Res<Actions>,
@@ -144,6 +144,6 @@ fn move_player(
 
         // damp + clamp
         player_vel.linear.x -= 2.0 * player_vel.linear.x.signum();
-        player_vel.linear.x = player_vel.linear.x.clamp(-MAX_SPEED, MAX_SPEED);
+        player_vel.linear.x = player_vel.linear.x.clamp(-MAX_SPEED_X, MAX_SPEED_X);
     }
 }

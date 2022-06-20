@@ -10,7 +10,10 @@ evil robots and escape from the Doctor's booby-trapped lair.
 
 ## Dev Tasks
 
-- [ ] basic side-scroller movement (jump, platforms, camera)
+- [ ] basic side-scroller movement
+  - [x] platforms
+  - [x] jumping
+  - [ ] scrolling camera for levels larger than window (stretch)
 - [ ] build a basic level
 - [ ] special abilities (double-jump / glide)
   - [ ] add traps/obstacles for these to be used in
