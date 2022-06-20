@@ -65,14 +65,13 @@ fn setup_menu(
         });
 }
 
+type InteractedButton = (Changed<Interaction>, With<Button>);
+
 fn click_play_button(
     mut commands: Commands,
     button_colors: Res<ButtonColors>,
     mut state: ResMut<State<GameState>>,
-    mut interaction_query: Query<
-        (Entity, &Interaction, &mut UiColor),
-        (Changed<Interaction>, With<Button>),
-    >,
+    mut interaction_query: Query<(Entity, &Interaction, &mut UiColor), InteractedButton>,
 ) {
     for (button, interaction, mut color) in interaction_query.iter_mut() {
         match *interaction {
