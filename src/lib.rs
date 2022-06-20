@@ -1,14 +1,16 @@
 mod actions;
 mod audio;
+mod level;
 mod loading;
 mod menu;
 mod player;
 
-use crate::actions::ActionsPlugin;
-use crate::audio::InternalAudioPlugin;
-use crate::loading::LoadingPlugin;
-use crate::menu::MenuPlugin;
-use crate::player::PlayerPlugin;
+use actions::ActionsPlugin;
+use audio::InternalAudioPlugin;
+use level::LevelPlugin;
+use loading::LoadingPlugin;
+use menu::MenuPlugin;
+use player::PlayerPlugin;
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
@@ -37,6 +39,7 @@ impl Plugin for GamePlugin {
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
+            .add_plugin(LevelPlugin)
             .add_plugin(PlayerPlugin);
 
         #[cfg(debug_assertions)]

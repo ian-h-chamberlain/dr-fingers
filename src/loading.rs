@@ -1,7 +1,8 @@
-use crate::GameState;
 use bevy::prelude::*;
 use bevy_asset_loader::{AssetCollection, AssetLoader};
 use bevy_kira_audio::AudioSource;
+
+use crate::GameState;
 
 pub struct LoadingPlugin;
 
@@ -14,6 +15,7 @@ impl Plugin for LoadingPlugin {
             .with_collection::<FontAssets>()
             .with_collection::<AudioAssets>()
             .with_collection::<SpriteAssets>()
+            .with_collection::<TileAssets>()
             .continue_to_state(GameState::Menu)
             .build(app);
     }
@@ -39,4 +41,11 @@ pub struct SpriteAssets {
     #[asset(path = "sprites/dogken.png")]
     #[asset(texture_atlas(tile_size_x = 46.0, tile_size_y = 34.0, columns = 1, rows = 10))]
     pub dogken: Handle<TextureAtlas>,
+}
+
+#[derive(AssetCollection)]
+pub struct TileAssets {
+    #[asset(path = "textures/prison_tiles.png")]
+    #[asset(texture_atlas(tile_size_x = 48.0, tile_size_y = 48.0, columns = 16, rows = 16))]
+    pub tiles: Handle<TextureAtlas>,
 }

@@ -1,7 +1,8 @@
+use bevy::prelude::*;
+
 use crate::actions::Actions;
 use crate::loading::SpriteAssets;
 use crate::GameState;
-use bevy::prelude::*;
 
 pub struct PlayerPlugin;
 
@@ -34,7 +35,7 @@ fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
         .spawn_bundle(SpriteSheetBundle {
             sprite: TextureAtlasSprite::new(0),
             texture_atlas: sprites.dogken.clone(),
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
+            transform: Transform::from_xyz(0.0, 0.0, 100.0),
             ..Default::default()
         })
         .insert(Player)
