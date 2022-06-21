@@ -1,7 +1,7 @@
 use std::f32::consts;
 
-use bevy::{log, prelude::*};
-use heron::{prelude::*, CollisionData};
+use bevy::prelude::*;
+use heron::prelude::*;
 
 use crate::actions::Actions;
 use crate::level;
