@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_asset_loader::{AssetCollection, AssetLoader};
 use bevy_kira_audio::AudioSource;
 
+use crate::level::Level;
 use crate::GameState;
 
 pub struct LoadingPlugin;
@@ -16,6 +17,7 @@ impl Plugin for LoadingPlugin {
             .with_collection::<AudioAssets>()
             .with_collection::<SpriteAssets>()
             .with_collection::<TileAssets>()
+            .with_collection::<MapAssets>()
             .continue_to_state(GameState::Menu)
             .build(app);
     }
@@ -48,4 +50,10 @@ pub struct TileAssets {
     #[asset(path = "textures/prison_tiles.png")]
     #[asset(texture_atlas(tile_size_x = 48.0, tile_size_y = 48.0, columns = 6, rows = 2))]
     pub tiles: Handle<TextureAtlas>,
+}
+
+#[derive(AssetCollection)]
+pub struct MapAssets {
+    #[asset(path = "maps/level0.lvl")]
+    pub level0: Handle<Level>,
 }

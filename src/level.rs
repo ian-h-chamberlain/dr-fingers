@@ -1,15 +1,17 @@
-use bevy::prelude::*;
+use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
+use bevy::reflect::TypeUuid;
+use bevy::{log, prelude::*};
 use heron::prelude::*;
 
-use crate::loading::TileAssets;
+use crate::loading::{MapAssets, TileAssets};
 use crate::GameState;
 
 pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Level>()
-            .add_system_set(SystemSet::on_enter(GameState::Loading).with_system(build_level))
+        app.add_asset::<Level>()
+            .add_asset_loader(LevelLoader)
             .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(spawn_level));
     }
 }
@@ -62,43 +64,94 @@ impl Side {
     }
 }
 
-#[derive(Default)]
-struct Level {
+const LEVEL_WIDTH: usize = 20;
+const LEVEL_HEIGHT: usize = 14;
+
+#[derive(TypeUuid)]
+#[uuid = "e89843e3-8db2-4467-ae09-196b0bb31aa9"]
+pub struct Level {
     tiles: Vec<Vec<Tile>>,
 }
 
-#[rustfmt::skip]
-fn build_level(mut level: ResMut<Level>) {
-    use Side::*;
-    use Tile::*;
-
-    // TODO maybe RON or even an ascii map or something a little nicer than this
-    level.tiles = vec![
-        vec![Empty; 16],
-        vec![Empty; 16],
-        vec![Empty; 16],
-        vec![Empty; 16],
-        vec![Empty, Empty, Empty, Empty, Floor(Standalone), ],
-        vec![Empty; 16],
-        vec![Empty; 16],
-        vec![Empty; 16],
-        vec![Empty, Floor(TopLeft), Floor(Top), Floor(Top), Floor(Top), Floor(Top), Floor(Top), Floor(Top), Floor(Top), Floor(TopRight), Empty, Empty, Empty, Empty, Empty, Empty, Empty],
-        vec![Empty, Floor(BotLeft), Floor(Bot), Floor(Bot), Floor(Bot), Floor(Bot), Floor(Bot), Floor(Bot), Floor(Bot), Floor(BotRight),  Empty, Empty, Empty, Empty, Empty, Empty, Empty],
-        vec![Empty; 16],
-        vec![Empty, Empty, Floor(Left), Floor(Middle), Floor(Middle), Floor(Middle), Floor(Right)],
-    ];
+impl Default for Level {
+    fn default() -> Self {
+        Self {
+            tiles: vec![vec![Tile::Empty; LEVEL_WIDTH]; LEVEL_HEIGHT],
+        }
+    }
 }
 
+struct LevelLoader;
+
+impl LevelLoader {
+    async fn load_level<'a>(
+        bytes: &'a [u8],
+        load_context: &'a mut LoadContext<'_>,
+    ) -> Result<(), anyhow::Error> {
+        let mut level = Level::default();
+        let input_str = std::str::from_utf8(bytes)?;
+
+        log::info!("Loading level from string");
+
+        for (j, row) in input_str.lines().enumerate() {
+            if j >= LEVEL_HEIGHT {
+                return Err(anyhow::format_err!("height larger than max {LEVEL_HEIGHT}"));
+            }
+
+            for (i, c) in row.chars().enumerate() {
+                if i >= LEVEL_WIDTH {
+                    return Err(anyhow::format_err!("width larger than max {LEVEL_WIDTH}"));
+                }
+
+                level.tiles[j][i] = match c {
+                    '[' => Tile::Floor(Side::Left),
+                    '=' => Tile::Floor(Side::Middle),
+                    ']' => Tile::Floor(Side::Right),
+                    '¬' => Tile::Floor(Side::TopRight),
+                    '4' => Tile::Floor(Side::TopLeft),
+                    '-' => Tile::Floor(Side::Top),
+                    'L' => Tile::Floor(Side::BotLeft),
+                    '_' => Tile::Floor(Side::Bot),
+                    '/' => Tile::Floor(Side::BotRight),
+                    '•' => Tile::Floor(Side::Standalone),
+                    _ => Tile::Empty,
+                };
+            }
+        }
+
+        load_context.set_default_asset(LoadedAsset::new(level));
+        Ok(())
+    }
+}
+
+impl AssetLoader for LevelLoader {
+    fn load<'a>(
+        &'a self,
+        bytes: &'a [u8],
+        load_context: &'a mut bevy::asset::LoadContext,
+    ) -> BoxedFuture<'a, Result<(), anyhow::Error>> {
+        Box::pin(Self::load_level(bytes, load_context))
+    }
+
+    fn extensions(&self) -> &[&str] {
+        &["lvl"]
+    }
+}
+
+// TODO: maybe support hot-reloading the map, could be useful for iteration
 fn spawn_level(
     mut commands: Commands,
-    level: Res<Level>,
+    maps: Res<MapAssets>,
+    level_assets: Res<Assets<Level>>,
     tiles: Res<TileAssets>,
     windows: Res<Windows>,
 ) {
     let window = windows.primary();
     let tile_start = Vec3::new(-window.width() / 2.0, window.height() / 2.0, 10.0);
 
-    for (j, row) in level.tiles.iter().enumerate() {
+    let level0 = level_assets.get(&maps.level0).unwrap();
+
+    for (j, row) in level0.tiles.iter().enumerate() {
         for (i, &tile) in row.iter().enumerate() {
             if let Tile::Floor(side) = tile {
                 let position = tile_start + Vec3::new(i as f32 * 48.0, j as f32 * -48.0, 0.0);

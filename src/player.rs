@@ -1,7 +1,7 @@
 use std::f32::consts;
 
-use bevy::prelude::*;
-use heron::prelude::*;
+use bevy::{log, prelude::*};
+use heron::{prelude::*, CollisionData};
 
 use crate::actions::Actions;
 use crate::level;
@@ -123,21 +123,26 @@ fn move_player(
     for (mut player_vel, collisions) in player_query.iter_mut() {
         let mut on_floor = false;
 
-        for collided_entity in collisions.entities() {
-            use level::{Side::*, Tile};
-
-            // kinda hacky, but only allow movement/jumping from "top" tiles
-            if let Ok(Tile::Floor(Top | TopLeft | TopRight)) = tiles_query.get(collided_entity) {
-                if actions.player_jump {
-                    player_vel.linear.y = JUMP_VELOCITY;
+        for collision in collisions.collision_data() {
+            if tiles_query.contains(collision.rigid_body_entity()) {
+                for normal in collision.normals() {
+                    if normal.y < -0.9 {
+                        on_floor = true;
+                        break;
+                    }
                 }
+            }
 
-                on_floor = true;
+            if on_floor {
                 break;
             }
         }
 
-        // TODO: movement should be less powerful in the air, to counteract friction?
+        if on_floor && actions.player_jump {
+            player_vel.linear.y = JUMP_VELOCITY;
+        }
+
+        // TODO: prevent player from sticking to wall by holding down direction
         if let Some(movement) = actions.player_x_movement {
             player_vel.linear.x += movement * MOVE_ACCEL * if on_floor { 1.0 } else { 0.5 };
         }
